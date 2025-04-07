@@ -1,0 +1,27 @@
+version: "3.6"
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:17.10.3-ce.0
+    container_name: gitlab-demo-1
+    hostname: "gitlab-demo-1"
+    ports:
+      - "2424:22"
+    volumes:
+      - ./config:/etc/gitlab
+      - ./logs:/var/log/gitlab
+      - ./data:/var/opt/gitlab
+    shm_size: "256m"
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gitlab-demo-1-https.rule=Host(`gitlab.sauravkarki.me`)"
+      - "traefik.http.routers.gitlab-demo-1-https.entrypoints=websecure"
+      - "traefik.http.routers.gitlab-demo-1-https.tls=true"
+      - "traefik.http.routers.gitlab-demo-1-https.tls.certresolver=cloudflare"
+      - "traefik.http.services.gitlab-demo-1-https.loadbalancer.server.port=80"
+    restart: unless-stopped
+
+networks:
+  frontend:
+    external: true
